@@ -7,11 +7,11 @@ from src.monitoring.monitoring import check_for_drift_and_retrain
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2023, 10, 1),
+    'start_date': datetime(2024, 10, 2),
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=30),
 }
 
 dag = DAG(
