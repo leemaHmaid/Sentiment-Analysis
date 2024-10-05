@@ -6,10 +6,8 @@ COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-# ENV SECRET_KEY=${SECRET_KEY}
+COPY . /code/
 
 EXPOSE 8080
 
-COPY . /code/
-
-CMD ["fastapi", "run", "src/deployment/app.py", "--port", "8080"]
+CMD ["fastapi", "run", "app/app.py", "--port", "8080"]
