@@ -1,0 +1,40 @@
+data:
+  raw_data_path: data/raw/IMDB-Dataset.csv
+  processed_data_path: data/processed/
+  external_data_path: data/external/external_data_sources.csv
+
+model:
+  bert_model_name: 'bert-base-uncased'
+  num_classes: 2
+  max_length: 128
+  dropout_rate: 0.1
+  output_dir: models/
+  mlflow_tracking_uri: 'http://localhost:5050'
+  mlflow_experiment_name: 'sentiment_analysis_experiment'
+  mlflow_artifact_uri: 'file:///Users/princemensah/Desktop/sent_analysis_project/mlruns' # We could also use a remote path instead of local path
+
+training:
+  batch_size: 16
+  num_epochs: 1
+  learning_rate: 2e-5
+  weight_decay: 0.01
+  logging_steps: 10
+  save_steps: 1000
+  evaluation_strategy: 'steps'
+  eval_steps: 500
+
+logging:
+  level: INFO
+  log_file: logs/training.log
+
+storage:
+  s3_bucket: your-s3-bucket-name # When we have to a cloud storage then we can add it here.
+  s3_region: your-region
+
+validation:
+  required_columns:
+    - review
+    - sentiment
+  missing_value_threshold: 0.05
+  duplicate_subset:
+    - review
