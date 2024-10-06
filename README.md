@@ -80,16 +80,15 @@ This project is designed to analyze sentiment from movie reviews using a BERT-ba
     This will execute the data ingestion, validation, transformation, model training, and evaluation processes consecutively. All generated logs will be saved in the `logs` folder, and the entire workflow will be tracked on the MLflow UI. Here is how it looks like (from our run):
 
 <p align="center">
-    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/mlflow_ui.png" width="540"\>
+    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/mlflow_ui.png" width="7500"\>
 </p>
 
 <p align="center">
 </p>
 <p align="center">
-    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/mlflow1.png" width="540"\>
+    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/mlflow1.png" width="7500"\>
 </p>
 <p align="center">
-   Description
 </p>
 
    ## Airflow Setup
@@ -122,13 +121,13 @@ Alternately, we can us Apache Airflow to manage the entire workflow of the proje
    You can access the Airflow UI at `http://localhost:8080` to view and manage DAGs (Directed Acyclic Graphs) for the project. Here is how it looks like (from our run):
 
 <p align="center">
-    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/aiflow_ui.png" width="540"\>
+    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/aiflow_ui.png" width="750"\>
 </p>
 
 <p align="center">
 </p>
 <p align="center">
-    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/airflow1.png" width="540"\>
+    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/airflow1.png" width="750"\>
 </p>
 <p align="center">
 </p>
