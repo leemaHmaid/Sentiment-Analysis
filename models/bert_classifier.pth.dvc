@@ -1,0 +1,5 @@
+outs:
+- md5: 17ea80125e5c23262cf436a7e771cda7
+  size: 438015111
+  hash: md5
+  path: bert_classifier.pth
