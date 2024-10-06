@@ -1,17 +1,21 @@
+import logging
 import os
-import joblib
-import pandas as pd
-from datetime import datetime
+import yaml
+import torch
 from dotenv import load_dotenv
-from utils.logger import get_logger
-from tensorflow.keras.models import load_model
+from fastapi import FastAPI, HTTPException, Depends, status, Request
+from transformers import BertTokenizer, BertForSequenceClassification
+from datetime import datetime
 from db import connect_to_mongo, get_collection
-from schemas import User, UserCredentials, Review
-from keras.preprocessing.sequence import pad_sequences
-from utils.hash_password import hash_password, verify_password
-from fastapi import FastAPI, Depends, HTTPException, status, Request
-from app.auth import generate_token_response, get_authenticated_user, JWTBearer
+from app.auth import generate_token_response, JWTBearer, get_authenticated_user
+from utils import get_logger, hash_password, verify_password
+from schemas import User, UserCredentials, ReviewInput
+from utils import config
 
+
+# Load configuration
+with open(os.path.join('configs', 'config.yaml'), 'r') as config_file:
+    config = yaml.safe_load(config_file)
 
 load_dotenv()
 
@@ -27,12 +31,23 @@ app = FastAPI(
 db = connect_to_mongo()
 logger = get_logger("api")
 
+# Initialize FastAPI
+app = FastAPI()
 
 # Load model and tokenizer
-model = load_model("models/lstm_model.h5")
-tokenizer = joblib.load("models/tokenizer.pkl")
+model_path = os.path.join(config["model"]["output_dir"], "bert_classifier.pth")
+model = BertForSequenceClassification.from_pretrained(
+    config["model"]["bert_model_name"], num_labels=config["model"]["num_classes"]
+)
+model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
+model.eval()
 
-# Pydantic models
+tokenizer = BertTokenizer.from_pretrained(config["model"]["bert_model_name"])
+
+# Logging setup
+logging.basicConfig(
+    filename="api_requests.log", level=logging.INFO, format="%(asctime)s - %(message)s"
+)
 
 
 @app.get("/")
@@ -108,39 +123,34 @@ async def admin_endpoint(request: Request):
 
 
 @app.post("/predict", dependencies=[Depends(JWTBearer())])
-async def predict_sentiment(review: Review, request: Request):
-    """
-    Predict sentiment of the provided text. Requires JWT token.
-    """
-    username = get_authenticated_user(request)
-    sentiment = predict_sentiment_lstm(model, tokenizer, review.text)
-    # Log the input, prediction, and username
-    log_prediction(review.text, sentiment, username=username)
-    return {"sentiment": sentiment, "user": username}
+async def predict(input_data: ReviewInput, request: Request):
+    try:
+        # Token verification
+        username = get_authenticated_user(request)
+        if username is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
+        # Token is valid, proceed with prediction
+        inputs = tokenizer(
+            input_data.review,
+            return_tensors="pt",
+            truncation=True,
+            padding=True,
+            max_length=config["model"]["max_length"],
+        )
+        outputs = model(**inputs)
+        prediction = torch.argmax(outputs.logits, dim=1).item()
+        sentiment = "positive" if prediction == 1 else "negative"
 
-# Utility functions
-def predict_sentiment_lstm(model, tokenizer, text, max_len=200):
-    sequence = tokenizer.texts_to_sequences([text])
-    padded_sequence = pad_sequences(sequence, maxlen=max_len)
-    prediction = model.predict(padded_sequence)
-    sentiment = "positive" if prediction[0][0] > 0.5 else "negative"
-    return sentiment
+        # Log the request
+        logging.info(
+            f"User: {username}, Review: {input_data.review}, Prediction: {sentiment}"
+        )
 
-
-def log_prediction(input_text, prediction, username, log_file="logs/predictions.csv"):
-    """
-    Log the input text, prediction, and username to a CSV file.
-    """
-    data = {
-        "timestamp": [pd.Timestamp.now()],
-        "username": [username],
-        "input_text": [input_text],
-        "prediction": [prediction],
-    }
-    df = pd.DataFrame(data)
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    if not os.path.isfile(log_file):
-        df.to_csv(log_file, index=False)
-    else:
-        df.to_csv(log_file, mode="a", header=False, index=False)
+        return {"sentiment": sentiment}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

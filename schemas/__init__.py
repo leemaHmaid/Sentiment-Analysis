@@ -11,8 +11,8 @@ class Token(BaseModel):
     token_type: str
 
 
-class Review(BaseModel):
-    text: str
+class ReviewInput(BaseModel):
+    review: str
 
 
 class User(BaseModel):
