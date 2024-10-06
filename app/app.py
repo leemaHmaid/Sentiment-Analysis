@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Depends, status
 from pydantic import BaseModel
 from transformers import BertTokenizer, BertForSequenceClassification
-from src.api.security import authenticate_user
+from .security import authenticate_user
 from datetime import datetime, timedelta
 
 
