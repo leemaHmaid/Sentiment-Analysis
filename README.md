@@ -143,7 +143,7 @@ Alternately, we can us Apache Airflow to manage the entire workflow of the proje
 
 ## Contact
 If you have any comments, suggestions or anything you'd like to be clarify on, feel free
-to reach us via [email](mailto:pmensah@aimsammi.org) or let's connect on [LinkedIn](https://www.linkedin.com/in/prince-mensah/).
+to reach us via email [Prince](mailto:pmensah@aimsammi.org), [Leema](mailto:lhamid@aimsammi.org), [Asim](mailto:amohamed@aimsammi.org) or let's connect on linkedin, [Leema](https://www.linkedin.com/in/leema-hamid/),[Prince](https://www.linkedin.com/in/prince-mensah/), [Asim](https://www.linkedin.com/in/asim-mohamed-9a2047135/).
 
 
 
