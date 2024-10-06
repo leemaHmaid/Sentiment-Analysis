@@ -9,5 +9,5 @@ trap cleanup EXIT
 # Activate the virtual environment if needed
 source .venv/bin/activate
 
-# Run the Python script to populate the database
+# Run the Python script to register dummy users to the database
 python populate.py
