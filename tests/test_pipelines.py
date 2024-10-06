@@ -9,7 +9,7 @@ import tempfile
 from src.pipelines.data_validation import run_data_validation
 from src.pipelines.data_transformation import run_data_transformation
 from src.pipelines.model_training import run_model_training
-# from src.pipelines.model_evaluation import run_model_evaluation
+from src.pipelines.model_evaluation import run_model_evaluation
 
 class TestModelEvaluation(unittest.TestCase):
     def setUp(self):
@@ -129,10 +129,10 @@ class TestModelEvaluation(unittest.TestCase):
             self.fail(f"Model Training failed during model evaluation test: {e}")
 
         # Run Model Evaluation
-        # try:
-        #     run_model_evaluation()
-        # except Exception as e:
-        #     self.fail(f"Model Evaluation failed: {e}")
+        try:
+            run_model_evaluation()
+        except Exception as e:
+            self.fail(f"Model Evaluation failed: {e}")
 
         # Assertions to ensure MLflow methods were called
         self.mock_set_experiment.assert_called_once_with('sentiment_analysis_experiment')
@@ -158,7 +158,6 @@ class TestModelEvaluation(unittest.TestCase):
         try:
             run_data_transformation()
         except Exception as e:
-            # The pipeline should handle small datasets gracefully
             pass
 
         # Run Model Training
@@ -168,10 +167,10 @@ class TestModelEvaluation(unittest.TestCase):
             self.fail(f"Model Training failed with insufficient data during evaluation test: {e}")
 
         # Run Model Evaluation
-        # try:
-        #     run_model_evaluation()
-        # except Exception as e:
-        #     self.fail(f"Model Evaluation failed with insufficient data: {e}")
+        try:
+            run_model_evaluation()
+        except Exception as e:
+            self.fail(f"Model Evaluation failed with insufficient data: {e}")
 
         # Assertions to ensure MLflow methods were called
         self.mock_set_experiment.assert_called_once_with('sentiment_analysis_experiment')
