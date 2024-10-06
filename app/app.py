@@ -1,16 +1,16 @@
-import jwt
-import csv
 import logging
 import os
 import yaml
 import torch
-import pandas as pd
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Depends, status
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, Depends, status, Request
 from transformers import BertTokenizer, BertForSequenceClassification
-from .security import authenticate_user
-from datetime import datetime, timedelta
+from datetime import datetime
+from db import connect_to_mongo, get_collection
+from app.auth import generate_token_response, JWTBearer, get_authenticated_user
+from utils import get_logger, hash_password, verify_password
+from schemas import User, UserCredentials, ReviewInput
+from utils import config
 
 
 # Load configuration
@@ -19,61 +19,112 @@ with open(os.path.join('configs', 'config.yaml'), 'r') as config_file:
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+version = "v1"
 
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# Initialize FastAPI app
+app = FastAPI(
+    title="Text Sentiment Analysis API",
+    description="An API to predict sentiment of text using an LSTM model.",
+    version=version,
+)
 
-# Initialize FastAPI
-app = FastAPI()
+db = connect_to_mongo()
+logger = get_logger("api")
 
 # Load model and tokenizer
-model_path = os.path.join(config['model']['output_dir'], 'bert_classifier.pth')
-model = BertForSequenceClassification.from_pretrained(config['model']['bert_model_name'], num_labels=config['model']['num_classes'])
-model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+model_path = os.path.join(config["model"]["output_dir"], "bert_classifier.pth")
+model = BertForSequenceClassification.from_pretrained(
+    config["model"]["bert_model_name"], num_labels=config["model"]["num_classes"]
+)
+model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
 model.eval()
 
-tokenizer = BertTokenizer.from_pretrained(config['model']['bert_model_name'])
+tokenizer = BertTokenizer.from_pretrained(config["model"]["bert_model_name"])
 
 # Logging setup
-logging.basicConfig(filename='api_requests.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+logging.basicConfig(
+    filename="api_requests.log", level=logging.INFO, format="%(asctime)s - %(message)s"
+)
 
-class ReviewInput(BaseModel):
-    review: str
 
-class TokenData(BaseModel):
-    username: str
+@app.get("/")
+def root():
+    """
+    The root endpoint.
+    """
+    return {"message": f"Hello, From Sentiment Analysis Application! {version}"}
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
 
-@app.post("/token")
-async def login_for_access_token(username: str = Depends(authenticate_user)):
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": username}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+@app.post("/register")
+async def register(user: User):
+    """
+    Registers a new user.
+    Args:
+        user (UserCredentials): The user's registration details.
 
-def log_request(username: str, review: str, prediction: str):
-    with open('prediction_logs.csv', mode='a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow([datetime.utcnow(), username, review, prediction])
+    Returns:
+        dict: A dictionary containing the user's registration details.
+    """
 
-@app.post("/predict")
-async def predict(input_data: ReviewInput, username: str = Depends(authenticate_user), token: str = Depends(login_for_access_token)):
+    collection = get_collection(db, "users")
+    user.created_at = datetime.now()
+    user.password = hash_password(user.password)
+    result = collection.insert_one(dict(user))
+    if not result.inserted_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User registration failed",
+        )
+
+    return {"result": "User registered successfully"}
+
+
+@app.post("/login")
+async def login(credentials: UserCredentials):
+    """
+    Authenticates a user and generates an access token.
+    Args:
+        credentials (UserCredentials): The user's login credentials.
+
+    Raises:
+        HTTPException: If the username or password is incorrect.
+
+    Returns:
+        dict: A dictionary containing the access token.
+    """
+    collection = get_collection(db, "users")
+    user = collection.find_one({"username": credentials.username})
+    matched = verify_password(credentials.password, user["password"])
+    if not user or not matched:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return generate_token_response(user["username"])
+
+
+@app.get("/admin", dependencies=[Depends(JWTBearer())])
+async def admin_endpoint(request: Request):
+    """
+    Admin-only endpoint. Requires JWT token with admin role.
+    """
+    username = get_authenticated_user(request)
+    collection = get_collection(db, "users")
+    user = collection.find_one({"username": username})
+    if user["role"] != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions"
+        )
+    return {"message": f"Welcome, {username}! This is the admin area."}
+
+
+@app.post("/predict", dependencies=[Depends(JWTBearer())])
+async def predict(input_data: ReviewInput, request: Request):
     try:
         # Token verification
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        token_username: str = payload.get("sub")
-        if token_username is None:
+        username = get_authenticated_user(request)
+        if username is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Could not validate credentials",
@@ -86,28 +137,17 @@ async def predict(input_data: ReviewInput, username: str = Depends(authenticate_
             return_tensors="pt",
             truncation=True,
             padding=True,
-            max_length=config['model']['max_length']
+            max_length=config["model"]["max_length"],
         )
         outputs = model(**inputs)
         prediction = torch.argmax(outputs.logits, dim=1).item()
         sentiment = "positive" if prediction == 1 else "negative"
 
         # Log the request
-        logging.info(f"User: {username}, Review: {input_data.review}, Prediction: {sentiment}")
-        log_request(username, input_data.review, sentiment)
+        logging.info(
+            f"User: {username}, Review: {input_data.review}, Prediction: {sentiment}"
+        )
 
         return {"sentiment": sentiment}
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    except jwt.PyJWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
