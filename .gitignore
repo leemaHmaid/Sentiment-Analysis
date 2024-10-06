@@ -1,4 +1,3 @@
-models/lstm_model.h5
-models/tokenizer.pkl
+models/bert_classifier.pth
 .venv
 .env
