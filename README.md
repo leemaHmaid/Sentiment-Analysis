@@ -17,6 +17,7 @@
     - [Start Airflow Scheduler and Webserver](#start-airflow-scheduler-and-webserver)
 6. [Model Deployment](#model-deployment)
 7. [Screenshots](#screenshots)
+7. [Contacts](#contants)
 
 ## Project Overview
 This project is designed to analyze sentiment from movie reviews using a BERT-based model. The pipeline includes data ingestion, preprocessing, model training, evaluation, and deployment, orchestrated with Apache Airflow. The project utilizes DVC for data versioning and model tracking, MLflow for experiment tracking, and FastAPI for serving the model through an API.
@@ -76,18 +77,16 @@ This project is designed to analyze sentiment from movie reviews using a BERT-ba
     python main.py
     ```
 
-    This will execute the data ingestion, validation, transformation, model training, and evaluation processes consecutively. All generated logs will be saved in the `logs` folder, and the entire workflow will be tracked on the MLflow UI.
-
+    This will execute the data ingestion, validation, transformation, model training, and evaluation processes consecutively. All generated logs will be saved in the `logs` folder, and the entire workflow will be tracked on the MLflow UI. Here is how it looks like (from our run):
 
 <p align="center">
-    <img src="https://github.com/pmensah28/Basic-ML-Algorithms/blob/main/images/linear_reg_error.png" width="540"\>
+    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/mlflow_ui.png" width="540"\>
 </p>
 
 <p align="center">
-    Description
 </p>
 <p align="center">
-    <img src="https://github.com/pmensah28/Basic-ML-Algorithms/blob/main/images/linear_reg_pred.png" width="540"\>
+    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/mlflow1.png" width="540"\>
 </p>
 <p align="center">
    Description
@@ -120,20 +119,18 @@ Alternately, we can us Apache Airflow to manage the entire workflow of the proje
     run chmod 777 scheduler.sh
     run ./webserver.sh 
     ```
-   You can access the Airflow UI at `http://localhost:8080` to view and manage DAGs (Directed Acyclic Graphs) for the project.
+   You can access the Airflow UI at `http://localhost:8080` to view and manage DAGs (Directed Acyclic Graphs) for the project. Here is how it looks like (from our run):
 
 <p align="center">
-    <img src="https://github.com/pmensah28/Basic-ML-Algorithms/blob/main/images/linear_reg_error.png" width="540"\>
+    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/aiflow_ui.png" width="540"\>
 </p>
 
 <p align="center">
-    Description
 </p>
 <p align="center">
-    <img src="https://github.com/pmensah28/Basic-ML-Algorithms/blob/main/images/linear_reg_pred.png" width="540"\>
+    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/airflow1.png" width="540"\>
 </p>
 <p align="center">
-   Description
 </p>
 
 3. **Model Deployment**:
@@ -145,12 +142,9 @@ Alternately, we can us Apache Airflow to manage the entire workflow of the proje
     ```
     This will launch the API, and you can make predictions by sending POST requests to http://`localhost:8000/predict`
 
-
-
-
 ## Contact
 If you have any comments, suggestions or anything you'd like to be clarify on, feel free
-to reach me via [email](mailto:pmensah@aimsammi.org) or let's connect on [LinkedIn](https://www.linkedin.com/in/prince-mensah/).
+to reach us via [email](mailto:pmensah@aimsammi.org) or let's connect on [LinkedIn](https://www.linkedin.com/in/prince-mensah/).
 
 
 
