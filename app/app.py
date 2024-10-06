@@ -31,9 +31,6 @@ app = FastAPI(
 db = connect_to_mongo()
 logger = get_logger("api")
 
-# Initialize FastAPI
-app = FastAPI()
-
 # Load model and tokenizer
 model_path = os.path.join(config["model"]["output_dir"], "bert_classifier.pth")
 model = BertForSequenceClassification.from_pretrained(
@@ -101,7 +98,7 @@ async def login(credentials: UserCredentials):
     if not user or not matched:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Token has expired",
             headers={"WWW-Authenticate": "Bearer"},
         )
     return generate_token_response(user["username"])
