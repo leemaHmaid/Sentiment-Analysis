@@ -45,3 +45,4 @@ data/processed/
 # MLflow
 mlruns/
 /data
+models/bert_classifier.pth
