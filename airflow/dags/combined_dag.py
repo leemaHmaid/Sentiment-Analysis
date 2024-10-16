@@ -30,8 +30,8 @@ dag = DAG(
     'combined_pipeline_with_monitoring',
     default_args=default_args,
     description='DAG for full model lifecycle including monitoring and retraining',
-    schedule_interval='@daily',  # Adjust as needed (e.g., '@daily', '@hourly', '0 0 * * *', etc.)
-    catchup=False,  # Prevents backfilling on DAG start
+    schedule_interval='@daily',
+    catchup=False,
 )
 
 # Define tasks
@@ -81,22 +81,20 @@ def run_drift_monitoring_and_check(**kwargs):
 drift_monitoring_task = BranchPythonOperator(
     task_id='check_drift_and_decide',
     python_callable=run_drift_monitoring_and_check,
-    provide_context=True,  # Optional: Remove if not using context variables
+    provide_context=True,
     dag=dag,
 )
 
 model_retraining_task = PythonOperator(
-    task_id='model_retraining_task',  # Adjusted task_id to match the return value
+    task_id='model_retraining_task',
     python_callable=run_model_training,
     dag=dag,
 )
 
 no_retraining_needed_task = DummyOperator(
-    task_id='no_retraining_needed_task',  # Adjusted task_id to match the return value
+    task_id='no_retraining_needed_task',
     dag=dag,
 )
-
-# Define task dependencies
 data_ingestion_task >> data_validation_task >> data_transformation_task >> model_training_task >> model_evaluation_task >> drift_monitoring_task
 drift_monitoring_task >> model_retraining_task
 drift_monitoring_task >> no_retraining_needed_task
