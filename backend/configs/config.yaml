@@ -8,7 +8,7 @@ model:
   num_classes: 2
   max_length: 128
   dropout_rate: 0.1
-  output_dir: backend/models/
+  output_dir: models/
   mlflow_tracking_uri: 'http://localhost:5050'
   mlflow_experiment_name: 'sentiment_analysis_experiment'
   mlflow_artifact_uri: 'file:///Users/princemensah/Desktop/sent_analysis_project/mlruns'

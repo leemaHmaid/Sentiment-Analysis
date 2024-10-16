@@ -13,12 +13,12 @@ from tqdm.auto import tqdm
 
 def run_model_evaluation():
     # Load configuration
-    config = load_config(os.path.join('configs', 'config.yaml'))
+    config = load_config(os.path.join('backend/configs', 'config.yaml'))
     
     # Set up logging
     logger = setup_logger(config['logging']['log_file'], config['logging']['level'])
     
-    logger.info("Starting Model Evaluation...")
+    logger.info("\n\nStarting Model Evaluation...")
     
     try:
         # Set MLflow tracking URI and experiment
@@ -40,7 +40,7 @@ def run_model_evaluation():
         if not os.path.exists(test_data_path):
             raise FileNotFoundError(f"Test dataset not found at {test_data_path}")
         
-        logger.info(f"Loading test data from {test_data_path}")
+        logger.info(f"\nLoading test data from {test_data_path}")
         test_df = pd.read_csv(test_data_path)
         test_df['sentiment'] = test_df['sentiment'].map({'positive': 1, 'negative': 0})
         

@@ -6,18 +6,18 @@ from src.utils.config import load_config
 
 def run_data_validation():
     # Load configuration
-    config = load_config(os.path.join('configs', 'config.yaml'))
+    config = load_config(os.path.join('backend/configs', 'config.yaml'))
     
     # Set up logging
     logger = setup_logger(config['logging']['log_file'], config['logging']['level'])
     
     raw_data_path = config['data']['raw_data_path']
     
-    logger.info("Starting Data Validation...")
+    logger.info("\n\nStarting Data Validation...")
     
     try:
         # Load raw dataset
-        logger.info(f"Loading raw data from {raw_data_path} for validation.")
+        logger.info(f"\nLoading raw data from {raw_data_path} for validation.")
         df = pd.read_csv(raw_data_path)
         
         # Schema Validation
@@ -57,7 +57,7 @@ def run_data_validation():
         outliers = df[(df['review_length'] > upper_bound) | (df['review_length'] < lower_bound)]
         logger.info(f"Identified {outliers.shape[0]} outlier records based on review length.")
                 
-        logger.info("Data Validation completed successfully.")
+        logger.info("\nData Validation completed successfully.")
     
     except Exception as e:
         logger.error(f"Data Validation failed: {e}")

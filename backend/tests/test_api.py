@@ -151,7 +151,7 @@ def test_predict_endpoint_with_invalid_token(client):
         "review": "The movie was fantastic!"
     }
     response = client.post("/predict", headers=invalid_headers, json=payload)
-    assert response.status_code in [401, 403]
+    assert response.status_code in [401, 403]  # Depending on FastAPI response
 
 def test_admin_history_endpoint_as_admin(get_tokens, client):
     """

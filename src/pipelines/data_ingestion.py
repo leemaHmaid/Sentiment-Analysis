@@ -6,7 +6,7 @@ from src.utils.config import load_config
 
 def run_data_ingestion():
     # Load configuration
-    config = load_config(os.path.join('configs', 'config.yaml'))
+    config = load_config(os.path.join('backend/configs', 'config.yaml'))
     
     # Set up logging
     logger = setup_logger(config['logging']['log_file'], config['logging']['level'])
@@ -14,7 +14,7 @@ def run_data_ingestion():
     raw_data_path = config['data']['raw_data_path']
     data_url = 'https://github.com/pmensah28/data/raw/main/IMDB-Dataset.csv.zip'
     
-    logger.info("Starting Data Ingestion...")
+    logger.info("\nStarting Data Ingestion...")
     
     try:
         raw_data_dir = os.path.dirname(raw_data_path)
@@ -22,7 +22,7 @@ def run_data_ingestion():
         logger.info(f"Ensured that the directory {raw_data_dir} exists.")
         
         # Download the zip file
-        logger.info(f"Downloading data from {data_url}")
+        logger.info(f"\n\nDownloading data from {data_url}")
         response = requests.get(data_url, stream=True)
         response.raise_for_status()  # Raise an error for bad status codes
         
@@ -34,13 +34,13 @@ def run_data_ingestion():
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
-        logger.info("Download completed successfully.")
+        logger.info("\nDownload completed successfully.")
         
         # Extract the zip file
         logger.info(f"Extracting {zip_path}")
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(raw_data_dir)
-        logger.info("Extraction completed successfully.")
+        logger.info("\nExtraction completed successfully.")
         
         # Remove the zip file after extraction
         os.remove(zip_path)
@@ -49,7 +49,7 @@ def run_data_ingestion():
         # Verify that the extracted CSV exists
         extracted_csv = os.path.join(raw_data_dir, 'IMDB-Dataset.csv')
         if os.path.exists(extracted_csv):
-            logger.info(f"Data ingestion successful. File saved to {extracted_csv}")
+            logger.info(f"\nData ingestion successful. File saved to {extracted_csv}")
         else:
             logger.error(f"Expected file {extracted_csv} not found after extraction.")
     
