@@ -8,14 +8,14 @@ model:
   num_classes: 2
   max_length: 128
   dropout_rate: 0.1
-  output_dir: models/
+  output_dir: backend/models/
   mlflow_tracking_uri: 'http://localhost:5050'
   mlflow_experiment_name: 'sentiment_analysis_experiment'
-  mlflow_artifact_uri: 'file:///Users/princemensah/Desktop/sent_analysis_project/mlruns' # We could also use a remote path instead of local path
+  mlflow_artifact_uri: 'file:///Users/princemensah/Desktop/sent_analysis_project/mlruns'
 
 training:
   batch_size: 16
-  num_epochs: 1
+  num_epochs: 4
   learning_rate: 2e-5
   weight_decay: 0.01
   logging_steps: 10
@@ -28,7 +28,7 @@ logging:
   log_file: logs/training.log
 
 storage:
-  s3_bucket: your-s3-bucket-name # When we have to a cloud storage then we can add it here.
+  s3_bucket: your-s3-bucket-name 
   s3_region: your-region
 
 validation:
@@ -38,3 +38,15 @@ validation:
   missing_value_threshold: 0.05
   duplicate_subset:
     - review
+
+monitoring:
+  reference_size: 500  # Number of rows to use as reference data
+  current_size: 500    # Number of rows to use as current data
+  report_path_html: reports/data_drift_report.html
+  report_path_json: reports/data_drift_report.json
+
+logging:
+  level: INFO
+  log_file: logs/monitoring.log
+
+

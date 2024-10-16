@@ -1,2 +1,2 @@
-from .backend.app import *
+from .app import *
 # from .frontend.app import *

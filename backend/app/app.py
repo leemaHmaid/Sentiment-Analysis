@@ -23,7 +23,7 @@ from pydantic import BaseModel, EmailStr
 from typing import List
 
 # Load configuration
-with open(os.path.join('configs', 'config.yaml'), 'r') as config_file:
+with open(os.path.join('backend/configs', 'config.yaml'), 'r') as config_file:
     config = yaml.safe_load(config_file)
 
 load_dotenv()
