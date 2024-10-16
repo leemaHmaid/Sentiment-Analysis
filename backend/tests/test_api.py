@@ -4,12 +4,19 @@ from app.app import app
 from db import connect_to_mongo, get_collection
 from utils import hash_password
 from datetime import datetime
+from unittest.mock import MagicMock
 
 # Initialize TestClient
 client = TestClient(app)
 
 # Connect to the test database
 test_db = connect_to_mongo()
+
+# Mock the model loading
+@pytest.fixture(autouse=True)
+def mock_model(mocker):
+    mocker.patch('app.app.model.load_state_dict', return_value=None)
+    mocker.patch('app.app.BertForSequenceClassification.from_pretrained', return_value=MagicMock())
 
 # Test user data
 @pytest.fixture(scope="module")
