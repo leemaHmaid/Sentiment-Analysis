@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore")
 
 def run_data_transformation():
     # Load configuration
-    config = load_config(os.path.join('configs', 'config.yaml'))
+    config = load_config(os.path.join('backend/configs', 'config.yaml'))
     
     # Set up logging
     logger = setup_logger(config['logging']['log_file'], config['logging']['level'])
@@ -17,11 +17,11 @@ def run_data_transformation():
     raw_data_path = config['data']['raw_data_path']
     processed_data_path = config['data']['processed_data_path']
     
-    logger.info("Starting Data Transformation...")
+    logger.info("\n\nStarting Data Transformation...")
     
     try:
         # Load validated raw data
-        logger.info(f"Loading validated raw data from {raw_data_path}")
+        logger.info(f"\nLoading validated raw data from {raw_data_path}")
         df = pd.read_csv(raw_data_path)
         
         logger.info("Computing review length.")
@@ -41,16 +41,16 @@ def run_data_transformation():
         validation_path = os.path.join(processed_data_path, 'validation.csv')
         test_path = os.path.join(processed_data_path, 'test.csv')
         
-        logger.info(f"Saving train data to {train_path}")
+        logger.info(f"\nSaving train data to {train_path}")
         train_df.to_csv(train_path, index=False)
         
-        logger.info(f"Saving validation data to {validation_path}")
+        logger.info(f"\nSaving validation data to {validation_path}")
         validation_df.to_csv(validation_path, index=False)
         
-        logger.info(f"Saving test data to {test_path}")
+        logger.info(f"\nSaving test data to {test_path}")
         test_df.to_csv(test_path, index=False)
         
-        logger.info("Data Transformation completed successfully.")
+        logger.info("\nData Transformation completed successfully.")
     
     except Exception as e:
         logger.error(f"Data Transformation failed: {e}")

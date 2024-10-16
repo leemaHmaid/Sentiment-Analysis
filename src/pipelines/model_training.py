@@ -50,7 +50,7 @@ class IMDBDataset(Dataset):
 
 def run_model_training():
     # Load configuration
-    config = load_config(os.path.join('configs', 'config.yaml'))
+    config = load_config(os.path.join('backend/configs', 'config.yaml'))
 
     # Set up logging
     logger = setup_logger(config['logging']['log_file'], config['logging']['level'])
@@ -78,16 +78,16 @@ def run_model_training():
         
         raw_data_path = config['data']['raw_data_path']
         processed_data_path = config['data']['processed_data_path']
-        train_data_path = os.path.join(processed_data_path, 'validation.csv')
+        train_data_path = os.path.join(processed_data_path, 'train.csv')
         validation_data_path = os.path.join(processed_data_path, 'validation.csv')
         
         # Load training and validation data
-        logger.info("Loading training data.")
+        logger.info("\nLoading training data.")
         train_df = pd.read_csv(train_data_path)
         # Convert sentiments to numeric
         train_df['sentiment'] = train_df['sentiment'].map({'positive': 1, 'negative': 0})
 
-        logger.info("Loading validation data.")
+        logger.info("\nLoading validation data.")
         validation_df = pd.read_csv(validation_data_path)
         # Convert sentiments to numeric
         validation_df['sentiment'] = validation_df['sentiment'].map({'positive': 1, 'negative': 0})
@@ -134,7 +134,7 @@ def run_model_training():
         )
         
         # Training loop
-        logger.info("Starting training.")
+        logger.info("\n\nStarting training...")
         for epoch in range(config['training']['num_epochs']):
             logger.info(f"Epoch {epoch + 1}/{config['training']['num_epochs']}")
             logger.info("-" * 10)
@@ -229,4 +229,4 @@ def run_model_training():
         # Log the model with MLflow
         mlflow.pytorch.log_model(model, artifact_path="model_mlflow", registered_model_name="BertClassifierModel")
         
-        logger.info("Model Training completed successfully.")
+        logger.info("\nModel Training completed successfully!")

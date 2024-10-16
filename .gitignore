@@ -1,5 +1,6 @@
 # model
-models/bert_classifier.pth
+src/models
+backend/models
 
 # Python
 __pycache__/
