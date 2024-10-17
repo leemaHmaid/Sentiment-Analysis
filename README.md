@@ -194,14 +194,22 @@ Alternately, we can us Apache Airflow to manage the entire workflow of the proje
    sh scripts/server.sh
    ```
 
-   The API should now be running at `http://127.0.0.1:8000`.
+   The API should now be running at `http://127.0.0.1:8001`. Navigate to `http://127.0.0.1:8001/docs` and you'll see an interface like this:
+
+   <p align="center">
+    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/api.png" width="7500"\>
+</p>
 
 1. **Run the Streamlit App**: Navigate to the frontend directory and use the following command:
    ```bash
    cd frontend
    streamlit run app_ui.py
    ```
-1. **Access the Application**: Open your web browser and go to `http://localhost:8501`
+1. **Access the Application**: Open your web browser and go to `http://localhost:8501`. You see a ui like this when you click on register:
+
+<p align="center">
+    <img src="https://github.com/leemaHmaid/Sentiment-Analysis/blob/development/img/api_ui.png" width="7500"\>
+</p>
 
 ## Contact
 
